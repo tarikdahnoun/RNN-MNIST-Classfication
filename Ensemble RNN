@@ -1,0 +1,56 @@
+from keras.datasets import mnist
+import matplotlib.pyplot as plt
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import Dropout
+from keras.utils import np_utils
+from keras.layers import SimpleRNN, LSTM, GRU
+
+# Data Preparation
+(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+X_train = X_train / 255
+X_test = X_test / 255
+
+
+Y_train = np_utils.to_categorical(Y_train)
+Y_test = np_utils.to_categorical(Y_test)
+
+print(X_train.shape, X_test.shape)
+
+# RNN Model
+model = Sequential()
+model.add(SimpleRNN(28, return_sequences=True))
+model.add(LSTM(28, return_sequences=True))
+model.add(GRU(28))
+model.add(Dropout(0.5))
+model.add(Dense(10, activation='softmax'))
+
+
+model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'])
+history = model.fit(X_train, Y_train,
+                    epochs=10,
+                    batch_size=128)
+
+model.summary()
+# 0.9946 Accuracy
+
+acc = history.history['acc']
+val_acc = history.history['val_acc']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+epochs = range(len(acc))
+
+plt.plot(epochs, acc, 'bo', label='Training acc')
+plt.plot(epochs, val_acc, 'b', label='Validation acc')
+plt.title('Training and validation accuracy')
+plt.legend()
+
+plt.figure()
+
+plt.plot(epochs, loss, 'bo', label='Training loss')
+plt.plot(epochs, val_loss, 'b', label='Validation loss')
+plt.title('Training and validation loss')
+plt.legend()
+
+plt.show()
